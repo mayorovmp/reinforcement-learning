@@ -4,7 +4,7 @@ from environment import Environment
 from agent import Agent
 
 
-def main():
+def run():
     # env = Environment(start_position=[[14.], [4.]])
     env = Environment(start_position=[[133.], [46.]])
     agent = Agent()
@@ -15,5 +15,3 @@ def main():
         env.log()
     env.show()
 
-
-main()
