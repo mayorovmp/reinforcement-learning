@@ -60,14 +60,11 @@ class Environment:
     def process_action(self, action_id):
         self._actions[action_id]()
 
-    def print_movement_vector(self):
-        print(self._start_point)
-        print(self._end_point)
-
     def log(self):
         print('position: [' + str(self._start_point[0][0]) + ', ' + str(self._start_point[1][0]) + ']')
         print('sensors: [' + str(self.get_sensors()) + ']')
         print('last reward: ' + str(self._last_reward))
+        print()
 
     def get_reward(self):
         self._last_reward = self._evaluate_reward()
