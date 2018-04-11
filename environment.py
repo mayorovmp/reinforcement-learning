@@ -24,7 +24,7 @@ class Environment:
     _theta = None
 
     def __init__(self,
-                 start_position: 'Вектор столбец. Начальная позиция робота' = [[0.], [0.]],
+                 start_position: 'Вектор столбец. Начальная позиция робота' = (0, 0),  #[[0.], [0.]],
                  step: 'Длина шага'=1.0,
                  theta: 'Угол поворота в градусах'=30,
                  dist_btw_sensors: 'Расстояние между сенсорами'=0.5,
@@ -34,7 +34,12 @@ class Environment:
 
         self._theta = theta
 
-        self._step = step
+        self._step = float(step)
+        start_position = [
+            [float(start_position[0])],
+            [float(start_position[1])]
+        ]
+
         self._start_point = np.array(start_position)
         end_position = start_position
         end_position[1][0] += step
