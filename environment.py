@@ -56,6 +56,7 @@ class Environment:
         self._mark_position(color=Environment._RED)
 
     def get_sensors(self):
+        """ Состояние световых датчиков"""
         self._eval_sensor_state()
         return self._sensors
 
@@ -72,6 +73,7 @@ class Environment:
         print()
 
     def get_reward(self):
+        """ Ценность текущего состояния."""
         self._last_reward = self._evaluate_reward()
         return self._last_reward
 
@@ -115,6 +117,7 @@ class Environment:
         return reward
 
     def show(self):
+        """ Открытие картинки с треком движения"""
         self._img_map.show()
         # self._img_map.save('map6.png')
 
@@ -137,13 +140,14 @@ class Environment:
 
     @staticmethod
     def rotate(point_a, point_b, theta):
-        """Поворот point_b относительно point_a на угол theta, возврат новые координаты. """
+        """ Поворот point_b относительно point_a на угол theta, возврат новые координаты. """
         d = point_b - point_a  # Перенесли центр координатных осей
         d = np.dot(Environment._get_rot_matrix(theta), d)  # Совершили поворот против часовой
         d += point_a  # Вернули центр оси
         return d
 
     def _eval_sensor_state(self):
+        """ Вычисление состояния световых датчиков. """
         left_sensor_position = self._eval_left_sensor_position()
         right_sensor_position = self._eval_right_sensor_position()
 
@@ -161,8 +165,8 @@ class Environment:
         else:
             self._sensors[1] = 0
 
-    def _is_valid_point_position(self, point):
-        """ point - вектор столбец [[2\n  1]]"""
+    def _is_valid_point_position(self, point: 'Вектор столбец вида [[2\n  1]]'):
+        """ Проверка не вышли за границу. """
         if point[0][0] < 0 or point[1][0] < 0:
             return False
 
@@ -195,6 +199,7 @@ class Environment:
         self._states = states
 
     def _mark_position(self, color=_GREEN):
+        """ Пометка позиции робота"""
         if not self._is_valid_point_position(self._start_point):
             return
         x = int(self._start_point[0][0])
