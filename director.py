@@ -5,7 +5,8 @@ from agent import Agent
 
 
 def run():
-    env = Environment(start_position=(133, 46))
+    env = Environment(start_position=(133, 46),
+                      start_theta=-60)
     agent = Agent()
     # Запустим 100 действий
     for i in range(100):

@@ -24,9 +24,10 @@ class Environment:
     _theta = None
 
     def __init__(self,
-                 start_position: 'Вектор столбец. Начальная позиция робота' = (0, 0),  #[[0.], [0.]],
+                 start_position: 'Вектор столбец. Начальная позиция робота' = (0, 0),
+                 start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
                  step: 'Длина шага'=1.0,
-                 theta: 'Угол поворота в градусах'=30,
+                 theta: 'Угол поворота при совершении действия, в градусах'=30,
                  dist_btw_sensors: 'Расстояние между сенсорами'=0.5,
                  path_to_map: 'Путь до картинки с картой'='maps\map1.jpg'):
 
@@ -43,6 +44,8 @@ class Environment:
         self._start_point = np.array(start_position)
         end_position = start_position
         end_position[1][0] += step
+        end_position = np.array(end_position)
+        end_position = Environment.rotate(self._start_point, end_position, start_theta)
         self._end_point = np.array(end_position)
 
         self._actions.append(self._action1)
