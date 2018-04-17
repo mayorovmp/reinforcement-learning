@@ -10,8 +10,12 @@ class Environment:
     _BLUE = (0, 0, 255)
 
     _img_map = None     # Картинка, для отображения
-    _states = None  # Карта с линией
+    _map = None  # Карта с линией
     _sensors = None  # Состояние датчиков
+    _last_sensors_state = None  # Последнии состояния датчиков
+    _number_of_last_states = None  # Кол-во хранимых состояний датчиков
+    _is_evaluated_sensors_state = None
+
     _actions = []  # Допустимые ходы
     _last_reward = None
 
@@ -28,12 +32,20 @@ class Environment:
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
                  step: 'Длина шага'=1.0,
                  theta: 'Угол поворота при совершении действия, в градусах'=30,
+                 number_of_last_states: 'Кол-во хранимых состояний датчиков' = 10,
                  dist_btw_sensors: 'Расстояние между сенсорами'=0.5,
                  path_to_map: 'Путь до картинки с картой'='maps\map1.jpg'):
 
         self._dist_btw_sensors = dist_btw_sensors
 
         self._theta = theta
+
+        self._last_sensors_state = []
+        self._number_of_last_states = number_of_last_states
+        for i in range(self._number_of_last_states):
+            self._last_sensors_state.append(0)
+            self._last_sensors_state.append(0)
+        self._is_evaluated_sensors_state = False
 
         self._step = float(step)
         start_position = [
@@ -58,20 +70,31 @@ class Environment:
 
         self._mark_position(color=Environment._RED)
 
-    def get_sensors(self):
+    def get_states(self):
         """ Состояние световых датчиков"""
-        self._eval_sensor_state()
-        return self._sensors
+        if not self._is_evaluated_sensors_state:
+            self._eval_sensor_state()
 
-    def get_actions_amount(self):
+        for i in range(2, len(self._last_sensors_state), 1):
+            self._last_sensors_state[i - 2] = self._last_sensors_state[i]
+        self._last_sensors_state[2 * self._number_of_last_states - 2] = self._sensors[0]
+        self._last_sensors_state[2 * self._number_of_last_states - 1] = self._sensors[1]
+
+        return self._last_sensors_state
+
+    def get_number_of_last_states(self):
+        return self._number_of_last_states
+
+    def get_number_of_actions(self):
         return len(self._actions)
 
     def process_action(self, action_id):
         self._actions[action_id]()
+        self._is_evaluated_sensors_state = False
 
     def log(self):
         print('position: [' + str(self._start_point[0][0]) + ', ' + str(self._start_point[1][0]) + ']')
-        print('sensors: [' + str(self.get_sensors()) + ']')
+        print('sensors: ' + str(self.get_states()))
         print('last reward: ' + str(self._last_reward))
         print()
 
@@ -102,7 +125,7 @@ class Environment:
 
             visited.add((x_pos, y_pos))
 
-            if self._states[x_pos][y_pos] > 0.5:
+            if self._map[x_pos][y_pos] > 0.8:
                 reward = -abs(x_pos - start_point[0][0]) - abs(y_pos - start_point[1][0])
                 break
 
@@ -157,23 +180,25 @@ class Environment:
         if self._is_valid_point_position(left_sensor_position):
             x_left = int(left_sensor_position[0][0])
             y_left = int(left_sensor_position[1][0])
-            self._sensors[0] = self._states[x_left][y_left]
+            self._sensors[0] = self._map[x_left][y_left]
         else:
             self._sensors[0] = 0
 
         if self._is_valid_point_position(right_sensor_position):
             x_right = int(right_sensor_position[0][0])
             y_right = int(right_sensor_position[1][0])
-            self._sensors[1] = self._states[x_right][y_right]
+            self._sensors[1] = self._map[x_right][y_right]
         else:
             self._sensors[1] = 0
+
+        self._is_evaluated_sensors_state = False
 
     def _is_valid_point_position(self, point: 'Вектор столбец вида [[2\n  1]]'):
         """ Проверка не вышли за границу. """
         if point[0][0] < 0 or point[1][0] < 0:
             return False
 
-        if point[0][0] >= self._states.shape[0] or point[1][0] >= self._states.shape[1]:
+        if point[0][0] >= self._map.shape[0] or point[1][0] >= self._map.shape[1]:
             return False
         return True
 
@@ -199,7 +224,7 @@ class Environment:
         states = np.array(self._img_map.convert('L'))
         mx = states.max()
         states = states / mx
-        self._states = states
+        self._map = states
 
     def _mark_position(self, color=_GREEN):
         """ Пометка позиции робота"""
@@ -217,9 +242,5 @@ class Environment:
         return np.array(((np.cos(theta), -np.sin(theta)),
                          (np.sin(theta), np.cos(theta))))
 
-    def _get_states(self):
-        return self._states
 
-    def _set_states(self, states):
-        self._states = states
 

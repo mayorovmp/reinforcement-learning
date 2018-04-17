@@ -3,21 +3,25 @@ import random
 
 
 class Agent:
-    _sensors = None
+    _states = None
     _last_reward = None
     _total_reward = None
-    _amount_available_actions = None
+    _number_of_actions = None
+    _number_of_states = None
 
-    def __init__(self, ):
+    _entry = None
+
+    def __init__(self, number_of_states, number_of_actions):
         self._last_reward = 0
         self._total_reward = 0
+        self._number_of_actions = number_of_actions
+        self._number_of_states = number_of_states
 
-    def set_feedback(self, sensors, reward, amount_available_actions):
-        self._sensors = sensors
+    def set_feedback(self, states, reward):
+        self._states = states
         self._last_reward = reward
         self._total_reward += reward
-        self._amount_available_actions = amount_available_actions
 
-    def get_chosen_action_number(self, ):
+    def get_chosen_action_number(self):
         """ Случайное блуждание"""
-        return random.randint(0, self._amount_available_actions - 1)
+        return random.randint(0, self._number_of_actions - 1)
