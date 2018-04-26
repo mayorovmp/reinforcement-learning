@@ -39,12 +39,9 @@ class Environment:
         self._dist_btw_sensors = dist_btw_sensors
 
         self._theta = theta
-
-        self._last_sensors_state = []
         self._number_of_last_states = number_of_last_states
-        for i in range(self._number_of_last_states):
-            self._last_sensors_state.append(0)
-            self._last_sensors_state.append(0)
+        self._last_sensors_state = [0, 0] * number_of_last_states
+
         self._is_evaluated_sensors_state = False
 
         self._step = float(step)
@@ -72,11 +69,15 @@ class Environment:
 
     def get_states(self):
         """ Состояние световых датчиков"""
-        if not self._is_evaluated_sensors_state:
-            self._eval_sensor_state()
+        if self._is_evaluated_sensors_state:
+            return self._last_sensors_state
+
+        self._eval_sensor_state()
+        self._is_evaluated_sensors_state = True
 
         for i in range(2, len(self._last_sensors_state), 1):
             self._last_sensors_state[i - 2] = self._last_sensors_state[i]
+            
         self._last_sensors_state[2 * self._number_of_last_states - 2] = self._sensors[0]
         self._last_sensors_state[2 * self._number_of_last_states - 1] = self._sensors[1]
 
