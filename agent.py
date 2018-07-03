@@ -1,8 +1,27 @@
 # -*- coding: utf-8 -*-
 import random
 
+from abc import ABC, ABCMeta, abstractmethod
 
-class Agent:
+
+class AgentA(ABC):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def set_feedback(self, states, reward):
+        """ Установка нового состояния
+        и награды за предыдущее действие"""
+
+    @abstractmethod
+    def get_chosen_action_number(self):
+        """ Получение выбранного действия"""
+
+    @abstractmethod
+    def get_params(self):
+        """ Получение найденных коэффициентов"""
+
+
+class Agent(AgentA):
     _states = None
     _last_reward = None
     _total_reward = None
@@ -25,3 +44,6 @@ class Agent:
     def get_chosen_action_number(self):
         """ Случайное блуждание"""
         return random.randint(0, self._number_of_actions - 1)
+
+    def get_params(self):
+        """ """

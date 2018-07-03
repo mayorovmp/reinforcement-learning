@@ -2,9 +2,30 @@
 import numpy as np
 from queue import Queue
 from PIL import Image
+from abc import ABC, ABCMeta, abstractmethod
 
 
-class Environment:
+class Env(ABC):
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def get_reward(self):
+        """ Награда"""
+
+    @abstractmethod
+    def get_states(self):
+        """ Состояние световых датчиков"""
+
+    @abstractmethod
+    def process_action(self, action_id):
+        """ Обработка действия"""
+
+    @abstractmethod
+    def get_number_of_actions(self):
+        """ Количество допустимых действий"""
+
+
+class Environment(Env):
     _RED = (255, 0, 0)
     _GREEN = (0, 255, 0)
     _BLUE = (0, 0, 255)
@@ -34,7 +55,7 @@ class Environment:
                  theta: 'Угол поворота при совершении действия, в градусах'=30,
                  number_of_last_states: 'Кол-во хранимых состояний датчиков' = 10,
                  dist_btw_sensors: 'Расстояние между сенсорами'=0.5,
-                 path_to_map: 'Путь до картинки с картой'='maps\map1.jpg'):
+                 path_to_map: 'Путь до картинки с картой'='maps\map.jpg'):
 
         self._dist_btw_sensors = dist_btw_sensors
 
@@ -77,7 +98,7 @@ class Environment:
 
         for i in range(2, len(self._last_sensors_state), 1):
             self._last_sensors_state[i - 2] = self._last_sensors_state[i]
-            
+
         self._last_sensors_state[2 * self._number_of_last_states - 2] = self._sensors[0]
         self._last_sensors_state[2 * self._number_of_last_states - 1] = self._sensors[1]
 
