@@ -29,6 +29,7 @@ class Environment(Env):
     _RED = (255, 0, 0)
     _GREEN = (0, 255, 0)
     _BLUE = (0, 0, 255)
+    _WHITE = (255, 255, 255)
 
     _img_map = None     # Картинка, для отображения
     _map = None  # Карта с линией
@@ -94,7 +95,7 @@ class Environment(Env):
             return self._last_sensors_state
 
         self._eval_sensor_state()
-        self._is_evaluated_sensors_state = True
+        # self._is_evaluated_sensors_state = True
 
         for i in range(2, len(self._last_sensors_state), 1):
             self._last_sensors_state[i - 2] = self._last_sensors_state[i]
@@ -213,7 +214,7 @@ class Environment(Env):
         else:
             self._sensors[1] = 0
 
-        self._is_evaluated_sensors_state = False
+        self._is_evaluated_sensors_state = True
 
     def _is_valid_point_position(self, point: 'Вектор столбец вида [[2\n  1]]'):
         """ Проверка не вышли за границу. """
@@ -256,6 +257,16 @@ class Environment(Env):
         y = int(self._start_point[1][0])
         pixels = self._img_map.load()
         pixels[x, y] = color
+
+        left_sensor = self._eval_left_sensor_position()
+        right_sensor = self._eval_right_sensor_position()
+        x = int(left_sensor[0])
+        y = int(left_sensor[1])
+        pixels[x, y] = self._RED
+
+        x = int(right_sensor[0])
+        y = int(right_sensor[1])
+        pixels[x, y] = self._WHITE
 
     @staticmethod
     def _get_rot_matrix(theta_degree):
