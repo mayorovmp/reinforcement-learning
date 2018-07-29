@@ -8,7 +8,7 @@ class AgentA(ABC):
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def set_feedback(self, states, reward):
+    def process(self, states, reward):
         """ Установка нового состояния
         и награды за предыдущее действие"""
 
@@ -22,28 +22,48 @@ class AgentA(ABC):
 
 
 class Agent(AgentA):
-    _states = None
     _last_reward = None
+    _last_state = None
+    _last_action_number = None
     _total_reward = None
     _number_of_actions = None
-    _number_of_states = None
+    _Q = None
 
     _entry = None
 
-    def __init__(self, number_of_states, number_of_actions):
+    def __init__(self, number_of_actions, Q):
         self._last_reward = 0
         self._total_reward = 0
         self._number_of_actions = number_of_actions
-        self._number_of_states = number_of_states
+        self._last_state = -1
+        self._last_action_number = 0
+        self._Q = Q
 
-    def set_feedback(self, states, reward):
-        self._states = states
+    def process(self, state, reward):
+        if self._Q.get(self._last_state) is None:
+            self._Q[self._last_state] = [0] * self._number_of_actions
+
+        if self._Q.get(state) is None:
+            self._Q[state] = [0] * self._number_of_actions
+
+        self._Q[self._last_state][self._last_action_number] += reward
+
+        self._last_state = state
+
         self._last_reward = reward
         self._total_reward += reward
 
+        idx = self._Q[state].index(max(self._Q[state]))
+        self._last_action_number = idx
+        print(idx)
+
+    def set_Q(self, Q):
+        self._Q = Q
+
     def get_chosen_action_number(self):
-        """ Случайное блуждание"""
-        return random.randint(0, self._number_of_actions - 1)
+        """ """
+        return self._last_action_number
 
     def get_params(self):
         """ """
+        return self._Q

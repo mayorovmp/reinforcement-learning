@@ -5,17 +5,22 @@ from agent import Agent
 
 
 def run():
-    env = Environment(start_position=(55, 46),
-                      number_of_last_states=3,
-                      start_theta=-60)
-    agent = Agent(number_of_states=env.get_number_of_last_states(),
-                  number_of_actions=env.get_number_of_actions())
-    # Запустим N действий
-    for i in range(100):
-        agent.set_feedback(env.get_states(), env.get_reward(), )
-        env.log()
-        action_id = agent.get_chosen_action_number()
-        env.process_action(action_id)
 
-    env.show()
+    agent = Agent(number_of_actions=3, Q={})
+    # Запустим N действий
+    for epoch in range(3):
+        env = Environment(start_position=(31, 57),
+                          number_of_last_states=1,
+                          start_theta=-90)
+        for i in range(20):
+            agent.process(env.get_states(), env.get_reward(), )
+            env.log()
+            action_id = agent.get_chosen_action_number()
+            env.process_action(action_id)
+        # env = Environment(start_position=(31, 57),
+        #                   number_of_last_states=1,
+        #                   start_theta=-90)
+
+        env.show()
+
 
