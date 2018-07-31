@@ -51,10 +51,11 @@ class Agent(AgentA):
         self._last_state = state
 
         self._last_reward = reward
-        self._total_reward += reward
+        self._total_reward += int(reward)
 
         idx = self._Q[state].index(max(self._Q[state]))
         self._last_action_number = idx
+        print(self._Q[state])
         print(idx)
 
     def set_Q(self, Q):
@@ -67,3 +68,9 @@ class Agent(AgentA):
     def get_params(self):
         """ """
         return self._Q
+
+    def get_total_reward(self):
+        return self._total_reward
+
+    def reset_reward(self):
+        self._total_reward = 0

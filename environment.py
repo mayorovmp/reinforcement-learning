@@ -40,7 +40,7 @@ class Environment(Env):
     _number_of_last_states = None  # Кол-во хранимых состояний датчиков
     _is_evaluated_sensors_state = None
 
-    _actions = []  # Допустимые ходы
+    _actions = None  # Допустимые ходы
     _last_reward = None
 
     _step = None       # Длина вектора - шаг, так как картинка дискретна, то это часть пикселя
@@ -54,8 +54,8 @@ class Environment(Env):
     def __init__(self,
                  start_position: 'Вектор столбец. Начальная позиция робота' = (1, 1),
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
-                 step: 'Длина шага'=1.0,
-                 theta: 'Угол поворота при совершении действия, в градусах'=30,
+                 step: 'Длина шага'=0.5,
+                 theta: 'Угол поворота при совершении действия, в градусах'=15,
                  number_of_last_states: 'Кол-во хранимых состояний датчиков' = 10,
                  dist_btw_sensors: 'Расстояние между сенсорами'=1,
                  path_to_map: 'Путь до картинки с картой'='maps\map.jpg'):
@@ -81,6 +81,7 @@ class Environment(Env):
         end_position = Environment.rotate(self._start_point, end_position, start_theta)
         self._end_point = np.array(end_position)
 
+        self._actions = []
         self._actions.append(self._action1)
         self._actions.append(self._action2)
         self._actions.append(self._action3)
@@ -135,7 +136,7 @@ class Environment(Env):
         visited = set()
         start_point = [[int(self._start_point[0][0])], [int(self._start_point[1][0])]]  # [[12], [43]]
         queue.put(start_point)
-        reward = float('-inf')
+        reward = -100
         while not queue.empty():
             cur_position = queue.get()
             queue.task_done()
@@ -212,7 +213,7 @@ class Environment(Env):
         if self._is_valid_point_position(right_sensor_position):
             x_right = int(right_sensor_position[0][0])
             y_right = int(right_sensor_position[1][0])
-            self._sensors[1] = self._map[y_left][x_left]
+            self._sensors[1] = self._map[y_right][x_right]
         else:
             self._sensors[1] = 0
         self._sensors[0] = 1 if self._sensors[0] > 0.8 else 0
