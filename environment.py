@@ -30,36 +30,36 @@ class Environment(Env):
     _GREEN = (0, 255, 0)
     _BLUE = (0, 0, 255)
     _WHITE = (255, 255, 255)
+    epoch = 0
+    # _map = None  # Карта с линией
+    # _predicts = None
+    # _sensors = None  # Состояние датчиков
+    # _last_sensors_state = None  # Последнии состояния датчиков
+    # _number_of_last_states = None  # Кол-во хранимых состояний датчиков
+    # _is_evaluated_sensors_state = None
+    # _pixels = None
+    # _actions = None  # Допустимые ходы
+    # _last_reward = None
+    #
+    # _step = None       # Длина вектора - шаг, так как картинка дискретна, то это часть пикселя
+    # _dist_btw_sensors = None    # Расстояние между сенсорами
+    #
+    # _center_line = None # карта с центральной линией
+    # _img_map = None
+    # _start_point = None  # Позиция робота
+    # _end_point = None   # Куда сходит робот
+    #
+    # _theta = None
 
-    _img_map = None     # Картинка, для отображения
-    _pixels = None  # Пиксели картинки
-    _map = None  # Карта с линией
-
-    _sensors = None  # Состояние датчиков
-    _last_sensors_state = None  # Последнии состояния датчиков
-    _number_of_last_states = None  # Кол-во хранимых состояний датчиков
-    _is_evaluated_sensors_state = None
-
-    _actions = None  # Допустимые ходы
-    _last_reward = None
-
-    _step = None       # Длина вектора - шаг, так как картинка дискретна, то это часть пикселя
-    _dist_btw_sensors = None    # Расстояние между сенсорами
-
-    _start_point = None  # Позиция робота
-    _end_point = None   # Куда сходит робот
-
-    _theta = None
-
-    def __init__(self,
+    def __init__(self, map,
                  start_position: 'Вектор столбец. Начальная позиция робота' = (1, 1),
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
-                 step: 'Длина шага'=0.5,
+                 step: 'Длина шага'=1,
                  theta: 'Угол поворота при совершении действия, в градусах'=15,
-                 number_of_last_states: 'Кол-во хранимых состояний датчиков' = 10,
-                 dist_btw_sensors: 'Расстояние между сенсорами'=1,
-                 path_to_map: 'Путь до картинки с картой'='maps\map.jpg'):
-
+                 number_of_last_states: 'Кол-во хранимых состояний датчиков' = 1,
+                 dist_btw_sensors: 'Расстояние между сенсорами'=8
+                 ):
+        Environment.epoch += 1
         self._dist_btw_sensors = dist_btw_sensors
 
         self._theta = theta
@@ -76,21 +76,32 @@ class Environment(Env):
 
         self._start_point = np.array(start_position)
         end_position = start_position
-        end_position[1][0] += step
+        end_position[0][0] += step
         end_position = np.array(end_position)
         end_position = Environment.rotate(self._start_point, end_position, start_theta)
         self._end_point = np.array(end_position)
+
+        self._sensors = np.zeros(2)
+
+        #self._load_map(path_to_map)
+        self._map = map._map
+        self._center_line = map._center_line
+        self._predicts = map._predicts
+        self._img_map = map._img_map.copy()
+        self._pixels = self._img_map.load()
+        # self._find_center_line()
+        # self._eval_predicts()
 
         self._actions = []
         self._actions.append(self._action1)
         self._actions.append(self._action2)
         self._actions.append(self._action3)
-
-        self._sensors = np.zeros(2)
-
-        self._load_map(path_to_map)
-
 #        self._mark_position(color=Environment._RED)
+
+
+
+    #_test = set()
+
 
     def get_states(self):
         """ Состояние световых датчиков"""
@@ -152,7 +163,7 @@ class Environment(Env):
 
             visited.add((x_pos, y_pos))
 
-            if self._map[y_pos][x_pos] > 0.8:
+            if self._center_line[x_pos][y_pos] > 0.8:
                 reward = -abs(x_pos - start_point[0][0]) - abs(y_pos - start_point[1][0])
                 break
 
@@ -167,12 +178,14 @@ class Environment(Env):
 
             next_pos = [[x_pos], [y_pos - 1]]
             queue.put(next_pos)
+        if reward == 0:
+            reward += 32
         return reward
 
     def show(self):
         """ Открытие картинки с треком движения"""
-        self._img_map.show()
-        # self._img_map.save('map6.png')
+        # self._img_map.show()
+        self._img_map.save("result/{0}.png".format(Environment.epoch))
 
     def _action1(self):
         """ Движение вперед."""
@@ -206,18 +219,20 @@ class Environment(Env):
         if self._is_valid_point_position(left_sensor_position):
             x_left = int(left_sensor_position[0][0])
             y_left = int(left_sensor_position[1][0])
-            self._sensors[0] = self._map[y_left][x_left]
+            self._sensors[0] = self._predicts[x_left][y_left]
+            #self._sensors[0] = self._map[y_left][x_left]
         else:
             self._sensors[0] = 0
 
         if self._is_valid_point_position(right_sensor_position):
             x_right = int(right_sensor_position[0][0])
             y_right = int(right_sensor_position[1][0])
-            self._sensors[1] = self._map[y_right][x_right]
+            self._sensors[1] = self._predicts[x_right][y_right]
+            #self._sensors[1] = self._map[y_right][x_right]
         else:
             self._sensors[1] = 0
-        self._sensors[0] = 1 if self._sensors[0] > 0.8 else 0
-        self._sensors[1] = 1 if self._sensors[1] > 0.8 else 0
+        # self._sensors[0] = 1 if self._sensors[0] > 0.8 else 0
+        # self._sensors[1] = 1 if self._sensors[1] > 0.8 else 0
         self._is_evaluated_sensors_state = True
 
     def _is_valid_point_position(self, point: 'Вектор столбец вида [[2\n  1]]'):
@@ -231,7 +246,7 @@ class Environment(Env):
 
     def _eval_left_sensor_position(self):
         left_point = Environment.rotate(self._start_point, self._end_point, 90)
-        k = self._dist_btw_sensors / self._step
+        k = self._dist_btw_sensors / 2 / self._step
         left_point -= self._start_point
         left_point *= k
         left_point += self._start_point
@@ -239,35 +254,26 @@ class Environment(Env):
 
     def _eval_right_sensor_position(self):
         right_point = Environment.rotate(self._start_point, self._end_point, -90)
-        k = self._dist_btw_sensors / self._step
+        k = self._dist_btw_sensors / 2 / self._step
         right_point -= self._start_point
         right_point *= k
         right_point += self._start_point
         return right_point
-
-    def _load_map(self, path):
-        self._img_map = Image.open(path)
-        self._pixels = self._img_map.load()
-        #  im.save('greyscale.png')
-        states = np.array(self._img_map.convert('L'))
-        mx = states.max()
-        states = states / mx
-        self._map = states
 
     def _track_agent(self, color=_GREEN):
         """ Пометка позиции робота"""
         if not self._is_valid_point_position(self._start_point):
             return
         self._mark_position(self._start_point, self._GREEN)
-        #self._mark_position(self._eval_left_sensor_position(), self._RED)
-        #self._mark_position(self._eval_right_sensor_position(), self._WHITE)
+        self._mark_position(self._eval_left_sensor_position(), self._RED)
+        self._mark_position(self._eval_right_sensor_position(), self._RED)
 
     def _mark_position(self, position, color=_GREEN):
         if not self._is_valid_point_position(position):
             return
         x = int(position[0][0])
         y = int(position[1][0])
-        self._pixels[x, y] = color
+        self._pixels[y, x] = color
 
     @staticmethod
     def _get_rot_matrix(theta_degree):
