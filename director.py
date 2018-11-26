@@ -13,9 +13,10 @@ def run():
     # Запустим N действий
     N = 1001
     for epoch in range(N):
-        start_point = map._start_positions[random.randint(0, len(map._start_positions)-1)]
-        start_point[0] += random.randint(-4, 4)
-        start_point[1] += random.randint(-4, 4)
+#        start_point = map._start_positions[random.randint(0, min(len(map._start_positions)-1, 10))]
+#        start_point[0] += random.randint(-4, 4)
+#        start_point[1] += random.randint(-4, 4)
+        start_point = (57, 33)
         env = Environment(start_position=start_point,
                           number_of_last_states=1,
                           theta=15,
