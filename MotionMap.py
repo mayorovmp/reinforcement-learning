@@ -70,7 +70,7 @@ class MotionMap:
                             count += 1
                             if self._is_valid_point_position([[x+i], [y+j]]):
                                 sum += self._map[x + i][y + j]
-                self._predicts[x][y] = round(sum / count * 1)
+                self._predicts[x][y] = round(255 * sum / count * 1)
 
     def _find_center_line(self):
         self._center_line = np.zeros(self._map.shape)
