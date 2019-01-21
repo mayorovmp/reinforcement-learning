@@ -42,14 +42,14 @@ class Agent(AgentA):
 
     def process(self, state, reward):
 
-        if self._Q.get(self._last_state) is None and self._last_state != -1:
-            self._Q[self._last_state] =np.zeros(self._number_of_actions)
-
-        if self._Q.get(state) is None:
-            self._Q[state] = np.zeros(self._number_of_actions)
-
-        if self._last_state != -1:
-            self._Q[self._last_state][self._last_action_number] += reward
+        # if self._Q.get(self._last_state) is None and self._last_state != -1:
+        #     self._Q[self._last_state] =np.zeros(self._number_of_actions)
+        #
+        # if self._Q.get(state) is None:
+        #     self._Q[state] = np.zeros(self._number_of_actions)
+        #
+        # if self._last_state != -1:
+        #     self._Q[self._last_state][self._last_action_number] += reward
 
         self._last_state = state
 
@@ -63,6 +63,9 @@ class Agent(AgentA):
                 idx = i
         # idx = self._Q[state].index(max(self._Q[state]))
         self._last_action_number = idx
+
+        # if random.randint(1, 5) == 1:
+        #     self._last_action_number = random.randint(0, 2)
 
     def set_Q(self, Q):
         self._Q = Q

@@ -1,7 +1,5 @@
 import numpy as np
-from queue import Queue
 from PIL import Image
-from abc import ABC, ABCMeta, abstractmethod
 
 
 class MotionMap:
@@ -11,7 +9,7 @@ class MotionMap:
     _start_positions = []
     _dist_btw_sensors = None
 
-    def __init__(self, path_to_map: 'Путь до картинки с картой'='maps/map2.jpg',
+    def __init__(self, path_to_map: 'Путь до картинки с картой'='maps/map3_1.jpg',
                  dist_btw_sensors=8):
         _img_map = None  # Картинка, для отображения
         self._dist_btw_sensors = dist_btw_sensors
@@ -23,7 +21,7 @@ class MotionMap:
     def _eval_start_positions(self):
         for i in range(self._center_line.shape[0]):
             for j in range(self._center_line.shape[1]):
-                if self._center_line[i][j] > 0.5 and self._is_valid_point_position([[i],[j + self._dist_btw_sensors]]):
+                if self._center_line[i][j] > 0.5 and self._is_valid_point_position([[i], [j + self._dist_btw_sensors]]):
                     isValid = True
                     for d in range(self._dist_btw_sensors):
                         if self._center_line[i][j + d] < 0.5:
@@ -70,7 +68,7 @@ class MotionMap:
                             count += 1
                             if self._is_valid_point_position([[x+i], [y+j]]):
                                 sum += self._map[x + i][y + j]
-                self._predicts[x][y] = round(sum / count * 1)
+                self._predicts[x][y] = round(sum / count * 3)
 
     def _find_center_line(self):
         self._center_line = np.zeros(self._map.shape)

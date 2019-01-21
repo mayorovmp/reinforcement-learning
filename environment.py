@@ -3,7 +3,8 @@ import numpy as np
 from queue import Queue
 from PIL import Image
 from abc import ABC, ABCMeta, abstractmethod
-
+import os
+import datetime
 
 class Env(ABC):
     __metaclass__ = ABCMeta
@@ -30,33 +31,15 @@ class Environment(Env):
     _GREEN = (0, 255, 0)
     _BLUE = (0, 0, 255)
     _WHITE = (255, 255, 255)
+    _directory = 'result/' + str(datetime.datetime.now())
     epoch = 0
-    # _map = None  # Карта с линией
-    # _predicts = None
-    # _sensors = None  # Состояние датчиков
-    # _last_sensors_state = None  # Последнии состояния датчиков
-    # _number_of_last_states = None  # Кол-во хранимых состояний датчиков
-    # _is_evaluated_sensors_state = None
-    # _pixels = None
-    # _actions = None  # Допустимые ходы
-    # _last_reward = None
-    #
-    # _step = None       # Длина вектора - шаг, так как картинка дискретна, то это часть пикселя
-    # _dist_btw_sensors = None    # Расстояние между сенсорами
-    #
-    # _center_line = None # карта с центральной линией
-    # _img_map = None
-    # _start_point = None  # Позиция робота
-    # _end_point = None   # Куда сходит робот
-    #
-    # _theta = None
 
     def __init__(self, map,
                  start_position: 'Вектор столбец. Начальная позиция робота' = (1, 1),
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
                  step: 'Длина шага'=1,
                  theta: 'Угол поворота при совершении действия, в градусах'=15,
-                 number_of_last_states: 'Кол-во хранимых состояний датчиков' = 1,
+                 number_of_last_states: 'Кол-во хранимых состояний датчиков' = 3,
                  dist_btw_sensors: 'Расстояние между сенсорами'=8
                  ):
         Environment.epoch += 1
@@ -97,6 +80,7 @@ class Environment(Env):
         self._actions.append(self._action2)
         self._actions.append(self._action3)
 #        self._mark_position(color=Environment._RED)
+        self._total = 0
 
 
 
@@ -142,6 +126,24 @@ class Environment(Env):
         return self._last_reward
 
     def _evaluate_reward(self):
+        left_sensor_position = self._eval_left_sensor_position()
+        right_sensor_position = self._eval_right_sensor_position()
+
+        x_left = int(left_sensor_position[0][0])
+        y_left = int(left_sensor_position[1][0])
+        left_val = self._predicts[x_left][y_left]
+
+        x_left = int(right_sensor_position[0][0])
+        y_left = int(right_sensor_position[1][0])
+        right_val = self._predicts[x_left][y_left]
+        if left_val == 1 and right_val == 1:
+            return 2
+
+        return -(abs(left_val - 1) + abs(right_val - 1))
+
+
+
+    def _evaluate_reward_1(self):
         """ Оценка награды, расчитывается как расстояние до ближайшей линии, использую волновой алгоритм(BFS)"""
         queue = Queue()
         visited = set()
@@ -185,7 +187,10 @@ class Environment(Env):
     def show(self):
         """ Открытие картинки с треком движения"""
         # self._img_map.show()
-        self._img_map.save("result/{0}.png".format(Environment.epoch))
+
+        if not os.path.exists(Environment._directory):
+            os.makedirs(Environment._directory)
+        self._img_map.save(Environment._directory + "/{0}.png".format(Environment.epoch))
 
     def _action1(self):
         """ Движение вперед."""
@@ -193,15 +198,21 @@ class Environment(Env):
         self._start_point += d
         self._end_point += d
 
+    def _action_t(self):
+        """ Движение вперед."""
+        d = self._end_point - self._start_point
+        self._start_point += d / 2
+        self._end_point += d / 2
+
     def _action2(self):
         """ Поворот по часовой на фиксированный угол и движение по направлению вектора."""
         self._end_point = Environment.rotate(self._start_point, self._end_point, -self._theta)
-        self._action1()
+        self._action_t()
 
     def _action3(self):
         """ Поворот против часовой на фиксированный угол и движение по направлению вектора."""
         self._end_point = Environment.rotate(self._start_point, self._end_point, self._theta)
-        self._action1()
+        self._action_t()
 
     @staticmethod
     def rotate(point_a, point_b, theta):
