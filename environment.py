@@ -30,8 +30,8 @@ class Environment(Env):
     _RED = (255, 0, 0)
     _GREEN = (0, 255, 0)
     _BLUE = (0, 0, 255)
-    _WHITE = (255, 255, 255)
-    _directory = 'result/' + str(datetime.datetime.now())
+    _WHITE = (255, 255, 255)    
+    _directory = 'result' + os.sep + str(datetime.datetime.now()).replace(':', '-')
     epoch = 0
 
     def __init__(self, map,
