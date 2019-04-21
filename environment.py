@@ -37,10 +37,10 @@ class Environment(Env):
     def __init__(self, map,
                  start_position: 'Вектор столбец. Начальная позиция робота' = (1, 1),
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
-                 step: 'Длина шага'=1,
-                 theta: 'Угол поворота при совершении действия, в градусах'=15,
+                 step: 'Длина шага' = 1,
+                 theta: 'Угол поворота при совершении действия, в градусах' = 15,
                  number_of_last_states: 'Кол-во хранимых состояний датчиков' = 3,
-                 dist_btw_sensors: 'Расстояние между сенсорами'=8
+                 dist_btw_sensors: 'Расстояние между сенсорами' = 10
                  ):
         Environment.epoch += 1
         self._dist_btw_sensors = dist_btw_sensors
@@ -201,8 +201,8 @@ class Environment(Env):
     def _action_t(self):
         """ Движение вперед."""
         d = self._end_point - self._start_point
-        self._start_point += d / 2
-        self._end_point += d / 2
+        self._start_point += d / 1
+        self._end_point += d / 1
 
     def _action2(self):
         """ Поворот по часовой на фиксированный угол и движение по направлению вектора."""
