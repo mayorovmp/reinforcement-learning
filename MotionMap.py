@@ -9,7 +9,7 @@ class MotionMap:
     _start_positions = []
     _dist_btw_sensors = None
 
-    def __init__(self, path_to_map: 'Путь до картинки с картой'='maps/circle.jpg',
+    def __init__(self, path_to_map: 'Путь до картинки с картой'='maps/line.jpg',
                  dist_btw_sensors=8):
         _img_map = None  # Картинка, для отображения
         self._dist_btw_sensors = dist_btw_sensors
