@@ -125,7 +125,7 @@ class Environment(Env):
         self._last_reward = self._evaluate_reward()
         return self._last_reward
 
-    def _evaluate_reward(self):
+    def _evaluate_reward_2(self):
         left_sensor_position = self._eval_left_sensor_position()
         right_sensor_position = self._eval_right_sensor_position()
 
@@ -143,7 +143,7 @@ class Environment(Env):
 
 
 
-    def _evaluate_reward_1(self):
+    def _evaluate_reward(self):
         """ Оценка награды, расчитывается как расстояние до ближайшей линии, использую волновой алгоритм(BFS)"""
         queue = Queue()
         visited = set()
