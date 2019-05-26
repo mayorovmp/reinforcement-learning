@@ -6,6 +6,9 @@ from abc import ABC, ABCMeta, abstractmethod
 import os
 import datetime
 
+from MotionMap import MotionMap
+
+
 class Env(ABC):
     __metaclass__ = ABCMeta
 
@@ -32,9 +35,10 @@ class Environment(Env):
     _BLUE = (0, 0, 255)
     _WHITE = (255, 255, 255)    
     _directory = 'result' + os.sep + str(datetime.datetime.now()).replace(':', '-')
-    epoch = 0
+    _epoch = 0
+    motion_map: MotionMap = None
 
-    def __init__(self, map,
+    def __init__(self,
                  start_position: 'Вектор столбец. Начальная позиция робота' = (1, 1),
                  start_theta: 'Угол поворота, куда смотрит агент, в градусах' = 0,
                  step: 'Длина шага' = 1,
@@ -42,7 +46,9 @@ class Environment(Env):
                  number_of_last_states: 'Кол-во хранимых состояний датчиков' = 3,
                  dist_btw_sensors: 'Расстояние между сенсорами' = 10
                  ):
-        Environment.epoch += 1
+        Environment._epoch += 1
+        if Environment.motion_map is None:
+            Environment.motion_map = MotionMap()
         self._dist_btw_sensors = dist_btw_sensors
 
         self._theta = theta
@@ -67,18 +73,18 @@ class Environment(Env):
         self._sensors = np.zeros(2)
 
         #self._load_map(path_to_map)
-        self._map = map._map
-        self._center_line = map._center_line
-        self._predicts = map._predicts
-        self._img_map = map._img_map.copy()
+        self._map = Environment.motion_map.get_map()
+        self._center_line = Environment.motion_map.get_center_line()
+        self._predicts = Environment.motion_map.get_predicts()
+        self._img_map = Environment.motion_map.get_img_map().copy()
         self._pixels = self._img_map.load()
         # self._find_center_line()
         # self._eval_predicts()
 
-        self._actions = []
-        self._actions.append(self._action1)
-        self._actions.append(self._action2)
-        self._actions.append(self._action3)
+        self._actions = [self._action1, self._action2, self._action3]
+        # self._actions.append(self._action1)
+        # self._actions.append(self._action2)
+        # self._actions.append(self._action3)
 #        self._mark_position(color=Environment._RED)
         self._total = 0
 
@@ -190,7 +196,7 @@ class Environment(Env):
 
         if not os.path.exists(Environment._directory):
             os.makedirs(Environment._directory)
-        self._img_map.save(Environment._directory + "/{0}.png".format(Environment.epoch))
+        self._img_map.save(Environment._directory + "/{0}.png".format(Environment._epoch))
 
     def _action1(self):
         """ Движение вперед."""

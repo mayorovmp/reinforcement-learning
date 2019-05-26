@@ -46,13 +46,13 @@ def run():
     #                                       (3.0, 2.0): [0, 0, 1],
     #                                       (3.0, 3.0): [1, 0, 0],
     #                                       })
-
-    map = MotionMap()
+    motion_map = MotionMap()
     # Запустим N действий
     N = 100
     show_every_n = 10
     for epoch in range(N):
-        start_point = map._start_positions[random.randint(0, len(map._start_positions)-1)]
+        start_positions = motion_map.get_start_positions()
+        start_point = start_positions[random.randint(0, len(start_positions)-1)]
         if epoch % show_every_n == 0:
             start_point[0] = 58
             start_point[1] = 34
@@ -65,8 +65,7 @@ def run():
                           theta=16,
                           step=1,
                           start_theta=90,
-                          dist_btw_sensors=8,
-                          map=map)
+                          dist_btw_sensors=8)
         for i in range(600):
             agent.process(env.get_states(), env.get_reward(), )
 
@@ -74,12 +73,11 @@ def run():
             action_id = agent.get_chosen_action_number()
 
             env.process_action(action_id)
-            x, y = int(env._start_point[0][0]), int(env._start_point[1][0])
-            if env.get_reward() < -12 or x > 190 or y > 190 or x < 10 or y < 10:
+            if env.get_reward() < -12:
                 break
         agent.reset_reward()
         if epoch % show_every_n == 0:
             env.show()
-    newQ=agent.get_params()
-    for i in newQ:
-        print(i, ':', newQ[i])
+    new_q = agent.get_params()
+    for i in new_q:
+        print(i, ':', new_q[i])

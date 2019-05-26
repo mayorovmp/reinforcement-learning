@@ -3,31 +3,45 @@ from PIL import Image
 
 
 class MotionMap:
-    _predicts = None # Предпросчет
+    _predicts = None  # Предпросчет
     _map = None  # Карта с линией
-    _center_line = None # карта с центральной линией
+    _center_line = None  # Карта с центральной линией
     _start_positions = []
     _dist_btw_sensors = None
+    _img_map = None
 
     def __init__(self, path_to_map: 'Путь до картинки с картой'='maps/line.jpg',
                  dist_btw_sensors=8):
-        _img_map = None  # Картинка, для отображения
         self._dist_btw_sensors = dist_btw_sensors
         self._load_map(path_to_map)
         self._find_center_line()
         self._eval_predicts()
         self._eval_start_positions()
 
+    def get_start_positions(self):
+        return self._start_positions
+
+    def get_map(self):
+        return self._map
+    def get_center_line(self):
+        return self._center_line
+
+    def get_predicts(self):
+        return self._predicts
+
+    def get_img_map(self):
+        return self._img_map
+
     def _eval_start_positions(self):
         for i in range(self._center_line.shape[0]):
             for j in range(self._center_line.shape[1]):
                 if self._center_line[i][j] > 0.5 and self._is_valid_point_position([[i], [j + self._dist_btw_sensors]]):
-                    isValid = True
+                    is_valid = True
                     for d in range(self._dist_btw_sensors):
                         if self._center_line[i][j + d] < 0.5:
-                            isValid = False
+                            is_valid = False
                             break
-                    if isValid:
+                    if is_valid:
                         self._start_positions.append([i, j])
 
     def _is_valid_point_position(self, point: 'Вектор столбец вида [[2\n  1]]'):
