@@ -8,24 +8,25 @@ import random
 
 def run():
 
-    agent = Agent(number_of_actions=3, Q={(1.0, 1.0): [1, 0, 0],
-                                          (1.0, 2.0): [0, 1, 0],
-                                          (0.0, 1.0): [0, 1, 0],
-                                          (0.0, 2.0): [0, 1, 0],
-                                          (1.0, 0.0): [0, 0, 1],
-                                          (0.0, 0.0): [1, 0, 0],
-                                          (2.0, 2.0): [1, 0, 0],
-                                          (2.0, 0.0): [0, 0, 1],
-                                          (2.0, 1.0): [0, 0, 1],
-
-                                          (0.0, 3.0): [0, 1, 0],
-                                          (1.0, 3.0): [0, 1, 0],
-                                          (2.0, 3.0): [0, 1, 0],
-                                          (3.0, 0.0): [0, 0, 1],
-                                          (3.0, 1.0): [0, 0, 1],
-                                          (3.0, 2.0): [0, 0, 1],
-                                          (3.0, 3.0): [1, 0, 0],
-                                          })
+    # agent = Agent(number_of_actions=3, Q={(1.0, 1.0): [1, 0, 0],
+    #                                       (1.0, 2.0): [0, 1, 0],
+    #                                       (0.0, 1.0): [0, 1, 0],
+    #                                       (0.0, 2.0): [0, 1, 0],
+    #                                       (1.0, 0.0): [0, 0, 1],
+    #                                       (0.0, 0.0): [1, 0, 0],
+    #                                       (2.0, 2.0): [1, 0, 0],
+    #                                       (2.0, 0.0): [0, 0, 1],
+    #                                       (2.0, 1.0): [0, 0, 1],
+    #
+    #                                       (0.0, 3.0): [0, 1, 0],
+    #                                       (1.0, 3.0): [0, 1, 0],
+    #                                       (2.0, 3.0): [0, 1, 0],
+    #                                       (3.0, 0.0): [0, 0, 1],
+    #                                       (3.0, 1.0): [0, 0, 1],
+    #                                       (3.0, 2.0): [0, 0, 1],
+    #                                       (3.0, 3.0): [1, 0, 0],
+    #                                     })
+    agent = Agent(number_of_actions=3, Q={})
     # стратегия смещаться только при сильном отклонении
     # agent = Agent(number_of_actions=3, Q={(1.0, 1.0): [1, 0, 0],
     #                                       (1.0, 2.0): [0, 1, 0],
@@ -48,25 +49,25 @@ def run():
 
     map = MotionMap()
     # Запустим N действий
-    N = 1
-    show_every_n = 20
+    N = 100
+    show_every_n = 10
     for epoch in range(N):
         start_point = map._start_positions[random.randint(0, len(map._start_positions)-1)]
         if epoch % show_every_n == 0:
             start_point[0] = 58
             start_point[1] = 34
 
-        #start_point[0] += random.randint(-2, 2)
-        #start_point[1] += random.randint(-2, 2)
+        start_point[0] += random.randint(-2, 2)
+        start_point[1] += random.randint(-2, 2)
 
         env = Environment(start_position=start_point,
                           number_of_last_states=1,
                           theta=16,
-                          step=2,
+                          step=1,
                           start_theta=90,
-                          dist_btw_sensors=9,
+                          dist_btw_sensors=8,
                           map=map)
-        for i in range(650):
+        for i in range(600):
             agent.process(env.get_states(), env.get_reward(), )
 
             # env.log()
