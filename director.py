@@ -57,13 +57,13 @@ def run():
             start_point[0] = 58
             start_point[1] = 34
 
-        start_point[0] += random.randint(-1, 1)
-        start_point[1] += random.randint(-1, 1)
+        start_point[0] += random.randint(-2, 2)
+        start_point[1] += random.randint(-2, 2)
 
         env = Environment(start_position=start_point,
                           number_of_last_states=1,
                           theta=16,
-                          step=2,
+                          step=1,
                           start_theta=90,
                           dist_btw_sensors=8,
                           map=map)
